@@ -1,0 +1,66 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    cas_login_target: '%env(string:CAS_LOGIN_TARGET)%'
+    cas_logout_target: '%env(string:CAS_LOGOUT_TARGET)%'
+    cas_host: '%env(string:CAS_HOST)%'
+    cas_port: '%env(int:CAS_PORT)%'
+    cas_path: '%env(string:CAS_PATH)%'
+    cas_gateway: '%env(bool:CAS_GATEWAY)%'
+    ldap_hostname: '%env(string:LDAP_HOSTNAME)%'
+    ldap_base_dn: '%env(string:LDAP_BASE_DN)%'
+    ldap_dn: '%env(string:LDAP_DN)%'
+    ldap_password: '%env(string:LDAP_PASSWORD)%'
+    app.admin_users: '%env(APP_PARAM)%'
+
+l3_cas_guard:
+    host: '%env(string:CAS_HOST)%'
+    path: '%env(string:CAS_PATH)%'
+    port: '%env(int:CAS_PORT)%'
+    ca: '%env(bool:CAS_CA)%'
+    handleLogoutRequest: '%env(bool:CAS_HANDLE_LOGOUT_REQUEST)%'
+    casServiceBaseUrl: '%env(string:CAS_SERVICE_BASE_URL)%'
+    casLogoutTarget: '%env(string:CAS_LOGOUT_TARGET)%'
+    force: '%env(bool:CAS_FORCE)%'
+    gateway: '%env(bool:CAS_GATEWAY)%'
+
+l3_ldap_user:
+    roles:
+        user: Etu    # if the user got the group "Etu" in this memberOf ldap field, he obtains automatically the role "ROLE_USER"
+        admin: test  # if the user got the group "test" in this memberOf ldap field, he obtains automatically the role "ROLE_ADMIN"
+        viewer: Scol # if the user got the group "Scol" in this memberOf ldap field, he obtains automatically the role "ROLE_VIEWER"
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    authentication_handler:
+        class: App\Handler\AuthenticationHandler
+        arguments: ['%cas_logout_target%']
+        public: false
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    oracle.listener:
+        class: Doctrine\DBAL\Event\Listeners\OracleSessionInit
+        tags:
+            - { name: doctrine.event_listener, event: postConnect }
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+open_ldap_object_ldap_object:
+    host:     "%ldap_hostname%"
+    dn:       "%ldap_dn%"
+    password: "%ldap_password%"
+    base_dn:  "%ldap_base_dn%"
