@@ -5,7 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Notification;
 use App\Repository\NotificationRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\{TextField,TextEditorField,AssociationField,UrlField};
+use EasyCorp\Bundle\EasyAdminBundle\Field\{TextField,TextareaField,AssociationField,UrlField};
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 
 class NotificationCrudController extends AbstractCrudController
@@ -22,7 +22,7 @@ class NotificationCrudController extends AbstractCrudController
         $new = [
             TextField::new('title','Titre')->setRequired(true),
             TextField::new('channel','Canal')->setRequired(true),
-            TextEditorField::new('message','Message')->setRequired(true),
+            TextareaField::new('message','Message')->setRequired(true),
             
             UrlField::new('lien', 'Lien')->setRequired(false),
             TextField::new('author', 'Auteur')->setRequired(false),

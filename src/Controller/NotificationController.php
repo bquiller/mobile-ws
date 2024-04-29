@@ -21,11 +21,15 @@ class NotificationController extends AbstractController
     #[Route('/notifications/{username}', name: 'liste_notifications', methods: ['GET'])]
     public function notifications(Request $request, NotifUtilisateurRepository $notifUtilisateurRepository, string $username): JsonResponse
     {
-      $notifications = $notifUtilisateurRepository->findByUsername($username);
+      //pour supporter ?offset=0&length=10
+      $offset = $request->get('offset');
+      $length = $request->get('length');
+
+      $notifications = $notifUtilisateurRepository->findByUsername($username, $offset, $length);
       $data = array();
       foreach ($notifications as $key => $notif) {
         $data[]=array(
-          "id" => $notif->getId(),
+          "id" => $notif->getNotification()->getId(),
           "author" => $notif->getNotification()->getAuthor(),
           "channel" => $notif->getNotification()->getChannel(),
           "title" => $notif->getNotification()->getTitle(),
@@ -57,11 +61,14 @@ class NotificationController extends AbstractController
     {
       $parameters = $request->toArray();
       $username = $parameters['username'];
-      $nid = $parameters['notificationIds'][0];
+      // TODO : support le foreach
 
-      $notif = $notifUtilisateurRepository->findByUsernameAndNotification($username, $nid);
-      $notif->setState("READ");
-      $notifUtilisateurRepository->save($notif, true);
+      $nid = $parameters['notificationIds'];
+      foreach ($nid as $key => $notifId) {
+        $notif = $notifUtilisateurRepository->findByUsernameAndNotification($username, $notifId);
+        $notif->setState("READ");
+        $notifUtilisateurRepository->save($notif, true);
+      }
 
       $data = array('OK');
       return $this->json($data);
