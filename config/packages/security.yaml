@@ -11,7 +11,7 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         l3_firewall:
-            pattern: ^/
+            pattern: ^/admin
             security: true
             custom_authenticators:
                 - cas.security.authentication.authenticator
@@ -20,7 +20,7 @@ security:
                 invalidate_session: false
 
         main:
-            pattern: ^/
+            pattern: ^/admin
             security: true
             lazy: true
             provider: ldap_user_provider

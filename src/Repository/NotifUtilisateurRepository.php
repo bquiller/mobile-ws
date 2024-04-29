@@ -39,6 +39,18 @@ class NotifUtilisateurRepository extends ServiceEntityRepository
         }
     }
 
+    public function findByUsernameAndNotification($username, $notificationId): ?NotifUtilisateur
+    {
+        return $this->createQueryBuilder('nu')
+            ->andWhere('nu.username = :val1')
+            ->andWhere('nu.notification = :val2')
+            ->setParameter('val1', $username)
+            ->setParameter('val2', $notificationId)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
 //    /**
 //     * @return NotifUtilisateur[] Returns an array of NotifUtilisateur objects
 //     */
