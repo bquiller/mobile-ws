@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\NotifEnregistrement;
 use App\Repository\{NotifUtilisateurRepository, NotifEnregistrementRepository};
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

@@ -52,13 +52,13 @@ class NotifEnregistrementRepository extends ServiceEntityRepository
     }
 
 
-    public function findByUsernameAndNotification($username, $notificationId): ?NotifEnregistrement
+    public function findByUsernameAndToken($username, $token): ?NotifEnregistrement
     {
-        return $this->createQueryBuilder('nu')
-            ->andWhere('nu.username = :val1')
-            ->andWhere('nu.notification = :val2')
+        return $this->createQueryBuilder('ne')
+            ->andWhere('ne.username = :val1')
+            ->andWhere('ne.token = :val2')
             ->setParameter('val1', $username)
-            ->setParameter('val2', $notificationId)
+            ->setParameter('val2', $token)
 //            ->orderBy('c.id', 'ASC')
             ->getQuery()
             ->getOneOrNullResult()
