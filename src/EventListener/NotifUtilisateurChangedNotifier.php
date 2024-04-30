@@ -28,17 +28,17 @@ class NotifUtilisateurChangedNotifier
         $server_key = $_ENV['FIREBASE_KEY'];
     }
 
-    public function postPersist (NotifUtilisateur $notifUtilisateur, PostPersistEventArgs  $event, 
-        NotifEnregistrementRepository $notifEnregistrementRepository): void
+    public function postPersist (NotifUtilisateur $notifUtilisateur, PostPersistEventArgs  $args): void
     {
-        $client = new Client();
-        $client->setApiKey($server_key);
+      $client = new Client();
+      $client->setApiKey($_ENV['FIREBASE_KEY']);
         
-        $message = new Message();
-        $message->setPriority('high');
+      $message = new Message();
+      $message->setPriority('high');
 
-        $devices = $notifEnregistrementRepository->findByUsername($notifUtilisateur->getUsername());
-
+      $em = $args->getEntityManager();
+      $notifEnregistrementRepository = $em->getRepository('App\Entity\NotifEnregistrement');
+      $devices = $notifEnregistrementRepository->findByUsername($notifUtilisateur->getUsername());
         
       foreach ($devices as $key => $device) {
         $message->addRecipient(new Device($device->getToken()));

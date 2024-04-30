@@ -38,13 +38,11 @@ class NotifEnregistrementRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-    public function findByUsername($username, $offset, $limit): ?array
+    public function findByUsername($username): ?array
     {
         return $this->createQueryBuilder('nu')
             ->andWhere('nu.username = :val1')
             ->setParameter('val1', $username)
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
             ->orderBy('nu.id', 'DESC')
             ->getQuery()
             ->getResult()

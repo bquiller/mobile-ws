@@ -95,7 +95,7 @@ class NotificationController extends AbstractController
     {
       $parameters = $request->toArray();
       $enregistrement = new NotifEnregistrement($parameters['username'], $parameters['token'], $parameters['platform'], $parameters['ip']);
-      $notifEnregistrementRepository->save($enregistrement);
+      $notifEnregistrementRepository->save($enregistrement,true);
       
       $data = array('OK');
       return $this->json($data);
@@ -106,7 +106,7 @@ class NotificationController extends AbstractController
     {
       $parameters = $request->toArray();
       $enregistrement = $notifEnregistrementRepository->findByUsernameAndToken($parameters['username'], $parameters['token']);
-      $notifEnregistrementRepository->remove($enregistrement);
+      $notifEnregistrementRepository->remove($enregistrement,true);
 
       $data = array('OK');
       return $this->json($data);
