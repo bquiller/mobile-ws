@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Repository\NotifUtilisateurRepository;
+use App\Repository\{NotifUtilisateurRepository, NotifEnregistrementRepository};
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -80,10 +80,10 @@ class NotificationController extends AbstractController
       $parameters = json_decode($request, true);
       $username = $parameters['username']; 
       $nid = $parameters['notificationId']; 
-
       
       $notif = $notifUtilisateurRepository->findByUsernameAndNotification($username, $nid);
       $notif->setState("UNREAD");
+      $notifUtilisateurRepository->save($notif, true);
 
       $data = array('OK');
       return $this->json($data);
@@ -92,22 +92,22 @@ class NotificationController extends AbstractController
     #[Route('/register', name: 'fcm_register', methods: ['POST'])]
     public function register(Request $request, NotifUtilisateurRepository $notifUtilisateurRepository): JsonResponse
     {
-      $parameters = json_decode($request->getContent(), true);
-      // $parameters['username']; 
-      // $parameters['token']; 
-      // $parameters['platform']; 
-      // $parameters['ip']; 
-      $data = array();
+      $parameters = json_decode($request, true);
+      $enregistrement = new NotifEnregistrement($parameters['username'], $parameters['token'], $parameters['platform'], $parameters['ip']);
+      $notifUtilisateurRepository->save($enregistrement);
+      
+      $data = array('OK');
       return $this->json($data);
     }
 
     #[Route('/unregister', name: 'fcm_unregister', methods: ['POST'])]
-    public function unregister(Request $request, NotifUtilisateurRepository $notifUtilisateurRepository): JsonResponse
+    public function unregister(Request $request, NotifEnregistrementRepository $notifEnregistrementRepository): JsonResponse
     {
-      $parameters = json_decode($request->getContent(), true);
-      // $parameters['username']; 
-      // $parameters['token']; 
-      $data = array();
+      $parameters = json_decode($request, true);
+      $enregistrement = $notifEnregistrementRepository->findByUsernameAndToken($parameters['username'], $parameters['token']);
+      $notifEnregistrementRepository->remove($enregistrement);
+
+      $data = array('OK');
       return $this->json($data);
     }
 }

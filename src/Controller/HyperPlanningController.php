@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use \SoapClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,7 +34,7 @@ class HyperPlanningController extends AbstractController
       $PASS = "4YJBJ7Cj";
 
       // Creation du client SOAP
-      $client = new \SoapClient($WSDL, array('login'=> $LOGIN,'password'=> $PASS));
+      $client = new SoapClient($WSDL, array('login'=> $LOGIN,'password'=> $PASS));
       $events = array();
       
       try {
