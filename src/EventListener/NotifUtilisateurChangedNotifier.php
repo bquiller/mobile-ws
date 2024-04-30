@@ -16,7 +16,7 @@ use sngrl\PhpFirebaseCloudMessaging\Message;
 use sngrl\PhpFirebaseCloudMessaging\Recipient\Device;
 use sngrl\PhpFirebaseCloudMessaging\Notification;
 
-#[AsEntityListener(event: Events::postPersist , method: 'postPersist ', entity: NotifUtilisateur::class)]
+#[AsEntityListener(event: Events::postPersist , method: 'postPersist', entity: NotifUtilisateur::class)]
 class NotifUtilisateurChangedNotifier 
 {
     private $server_key;

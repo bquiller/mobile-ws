@@ -78,7 +78,7 @@ class NotificationController extends AbstractController
     #[Route('/notifications/unread', name: 'unread_notif', methods: ['POST'])]
     public function unread(Request $request, NotifUtilisateurRepository $notifUtilisateurRepository): JsonResponse
     {
-      $parameters = json_decode($request, true);
+      $parameters = $request->toArray();
       $username = $parameters['username']; 
       $nid = $parameters['notificationId']; 
       
@@ -91,11 +91,11 @@ class NotificationController extends AbstractController
     }
 
     #[Route('/register', name: 'fcm_register', methods: ['POST'])]
-    public function register(Request $request, NotifUtilisateurRepository $notifUtilisateurRepository): JsonResponse
+    public function register(Request $request, NotifEnregistrementRepository $notifEnregistrementRepository): JsonResponse
     {
-      $parameters = json_decode($request, true);
+      $parameters = $request->toArray();
       $enregistrement = new NotifEnregistrement($parameters['username'], $parameters['token'], $parameters['platform'], $parameters['ip']);
-      $notifUtilisateurRepository->save($enregistrement);
+      $notifEnregistrementRepository->save($enregistrement);
       
       $data = array('OK');
       return $this->json($data);
@@ -104,7 +104,7 @@ class NotificationController extends AbstractController
     #[Route('/unregister', name: 'fcm_unregister', methods: ['POST'])]
     public function unregister(Request $request, NotifEnregistrementRepository $notifEnregistrementRepository): JsonResponse
     {
-      $parameters = json_decode($request, true);
+      $parameters = $request->toArray();
       $enregistrement = $notifEnregistrementRepository->findByUsernameAndToken($parameters['username'], $parameters['token']);
       $notifEnregistrementRepository->remove($enregistrement);
 
