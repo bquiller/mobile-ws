@@ -11,42 +11,35 @@ use Doctrine\ORM\Event\PostPersistEventArgs;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use sngrl\PhpFirebaseCloudMessaging\Client;
-use sngrl\PhpFirebaseCloudMessaging\Message;
-use sngrl\PhpFirebaseCloudMessaging\Recipient\Device;
-use sngrl\PhpFirebaseCloudMessaging\Notification;
+use Kreait\Firebase\Contract\Messaging;
+use Kreait\Firebase\Messaging\CloudMessage;
 
 #[AsEntityListener(event: Events::postPersist , method: 'postPersist', entity: NotifUtilisateur::class)]
 class NotifUtilisateurChangedNotifier 
 {
-    private $server_key;
-
-    public function __construct(
+    public function __construct(Messaging $my_projectMessaging,
         private readonly EntityManagerInterface $entityManager,
         private readonly RequestStack $requestStack)
     {
-        $server_key = $_ENV['FIREBASE_KEY'];
+        $this->messaging = $messaging;
     }
 
     public function postPersist (NotifUtilisateur $notifUtilisateur, PostPersistEventArgs  $args): void
     {
-      $client = new Client();
-      $client->setApiKey($_ENV['FIREBASE_KEY']);
-        
-      $message = new Message();
-      $message->setPriority('high');
+      // $client->setApiKey($_ENV['FIREBASE_KEY']);
 
       $em = $args->getEntityManager();
       $notifEnregistrementRepository = $em->getRepository('App\Entity\NotifEnregistrement');
       $devices = $notifEnregistrementRepository->findByUsername($notifUtilisateur->getUsername());
         
       foreach ($devices as $key => $device) {
-        $message->addRecipient(new Device($device->getToken()));
-        $message->setNotification(
-            new Notification($notifUtilisateur->getNotification()->getTitle(), 
-                             $notifUtilisateur->getNotification()->getMessage()));
+        $message = CloudMessage::withTarget('token', $device->getToken())
+            ->withNotification(Notification::create(
+                $notifUtilisateur->getNotification()->getTitle(), 
+                $notifUtilisateur->getNotification()->getMessage()));
+
+        $messaging->send($message);
         
-        $response = $client->send($message);
         // var_dump($response->getStatusCode());
         // var_dump($response->getBody()->getContents());
       }
