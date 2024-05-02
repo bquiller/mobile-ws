@@ -16,5 +16,4 @@ return [
     OpenLdapObject\Bundle\LdapObjectBundle\OpenLdapObjectLdapObjectBundle::class => ['all' => true],
     L3\Bundle\LdapUserBundle\L3LdapUserBundle::class => ['all' => true],
     Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle::class => ['all' => true],
-    Kreait\Firebase\Symfony\Bundle\FirebaseBundle::class => ['all' => true],
 ];

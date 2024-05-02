@@ -11,17 +11,21 @@ use Doctrine\ORM\Event\PostPersistEventArgs;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Kreait\Firebase\Factory;
 use Kreait\Firebase\Contract\Messaging;
 use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 #[AsEntityListener(event: Events::postPersist , method: 'postPersist', entity: NotifUtilisateur::class)]
 class NotifUtilisateurChangedNotifier 
 {
-    public function __construct(Messaging $my_projectMessaging,
+    private $messaging;
+    public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly RequestStack $requestStack)
     {
-        $this->messaging = $messaging;
+	$factory = (new Factory)->withServiceAccount(__DIR__.'/../../config/unimes_credentials.json'); 
+        $this->messaging = $factory->createMessaging();
     }
 
     public function postPersist (NotifUtilisateur $notifUtilisateur, PostPersistEventArgs  $args): void
@@ -38,7 +42,7 @@ class NotifUtilisateurChangedNotifier
                 $notifUtilisateur->getNotification()->getTitle(), 
                 $notifUtilisateur->getNotification()->getMessage()));
 
-        $messaging->send($message);
+        $this->messaging->send($message);
         
         // var_dump($response->getStatusCode());
         // var_dump($response->getBody()->getContents());
