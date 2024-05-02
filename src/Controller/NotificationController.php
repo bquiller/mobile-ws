@@ -7,7 +7,15 @@ use App\Repository\{NotifUtilisateurRepository, NotifEnregistrementRepository};
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\{Request, JsonResponse};
+use Symfony\Component\HttpFoundation\{Request, Response, JsonResponse};
+
+
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Contract\Messaging;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
+use Kreait\Firebase\Database;
+use Kreait\Firebase\ServiceAccount;
 
 class NotificationController extends AbstractController
 {
