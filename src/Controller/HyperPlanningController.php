@@ -19,7 +19,7 @@ class HyperPlanningController extends AbstractController
     {
         // $user = $ldapUP->loadUserByIdentifier($username);
         $ldap = Ldap::create('ext_ldap', ['connection_string' => 'ldap://'.$this->getParameter('ldap_hostname').':389']);
-        $query = $ldap->query('ou=people,dc=unimes,dc=fr', '(&(uid='.$username.'))');
+        $query = $ldap->query('ou=people,'.$this->getParameter('ldap_base_dn'), '(&(uid='.$username.'))');
         $ldap->bind($this->getParameter('ldap_dn'), $this->getParameter('ldap_password'));
         $results = $query->execute();
         
@@ -36,11 +36,7 @@ class HyperPlanningController extends AbstractController
 
         date_default_timezone_set('Europe/Paris');
 
-        // http://127.0.0.1/mobile-ws/public/edt/bquiller?startDate=2024-01-01&endDate=2024-01-31
-
-        // URL du document WSDL de HYPERPLANNING Service web
         $WSDL = $this->getParameter('hp_wsdl');
-        // L'identifiant et le mot de passe
         $LOGIN = $this->getParameter('hp_user');
         $PASS = $this->getParameter('hp_password');
 
