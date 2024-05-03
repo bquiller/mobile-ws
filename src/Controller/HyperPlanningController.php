@@ -27,8 +27,8 @@ class HyperPlanningController extends AbstractController
             //print_r($tab);exit;
             if ($tab->getAttribute('supannCodeINE') !== null) $ine = $tab->getAttribute('supannCodeINE')[0];
             if ($tab->getAttribute('supannEmpId') !== null) $supannempid = $tab->getAttribute('supannEmpId')[0];
-            $sn = $tab->getAttribute('sn')[0];
-            $givenname = $tab->getAttribute('givenName')[0];
+            $sn = \Transliterator::create('NFD; [:Nonspacing Mark:] Remove; NFC')->transliterate(strtoupper($tab->getAttribute('sn')[0]));
+            $givenname = \Transliterator::create('NFD; [:Nonspacing Mark:] Remove; NFC')->transliterate(strtoupper($tab->getAttribute('givenName')[0]));
         }
 
         $debut = $request->get('startDate');

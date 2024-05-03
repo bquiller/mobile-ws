@@ -5,6 +5,7 @@ use App\Repository\AccessTokenRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Security\Http\AccessToken\AccessTokenHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccessTokenHandler implements AccessTokenHandlerInterface
 {
