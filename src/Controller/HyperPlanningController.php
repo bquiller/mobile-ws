@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\{JsonResponse, Response,Request};
 
 class HyperPlanningController extends AbstractController
 {
-    #[Route('/edt/{username}', name: 'emploi_du_temps', methods: ['GET'])]
+    #[Route('/api/edt/{username}', name: 'emploi_du_temps', methods: ['GET'])]
     public function edt(Request $request, EntityManagerInterface $entityManager, UserProviderInterface $ldapUP, string $username): JsonResponse
     {
         // $user = $ldapUP->loadUserByIdentifier($username);

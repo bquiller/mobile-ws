@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\{JsonResponse, Response,Request};
 
 class ProfilController extends AbstractController
 {
-    #[Route('/profil/{username}', name: 'profil', methods: ['GET'])]
+    #[Route('/api/profil/{username}', name: 'profil', methods: ['GET'])]
     public function profil(Request $request, string $username): JsonResponse
     {
         // $user = $ldapUP->loadUserByIdentifier($username);

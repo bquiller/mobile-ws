@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class CrousController extends AbstractController
 {
-    #[Route('/restaurants', name: 'liste_restaurants', methods: ['GET'])]
+    #[Route('/api/restaurants', name: 'liste_restaurants', methods: ['GET'])]
     public function restaurants(): Response
     {
         // http://127.0.0.1/nms/public/restaurants
@@ -16,7 +16,7 @@ class CrousController extends AbstractController
         die();
     }
 
-    #[Route('/restaurants/{restaurantId}/', name: 'menu_restaurant', methods: ['GET', 'POST'])]
+    #[Route('/api/restaurants/{restaurantId}/', name: 'menu_restaurant', methods: ['GET', 'POST'])]
     public function menus(string $restaurantId): JsonResponse
     {
         // http://127.0.0.1/nms/public/restaurants/1846

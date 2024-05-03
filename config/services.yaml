@@ -17,7 +17,7 @@ parameters:
     hp_wsdl: '%env(HP_WSDL)%'
     hp_user: '%env(HP_USER)%'
     hp_password: '%env(HP_PASSWORD)%'
-    app.admin_users: '%env(APP_PARAM)%'
+    bearer_token: '%env(BEARER_TOKEN)%'
 
 l3_cas_guard:
     host: '%env(string:CAS_HOST)%'

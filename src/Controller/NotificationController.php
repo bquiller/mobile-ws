@@ -20,14 +20,14 @@ use Kreait\Firebase\ServiceAccount;
 class NotificationController extends AbstractController
 {
 
-    #[Route('/channels/{username}', name: 'liste_channels_desabonne', methods: ['GET'])]
+    #[Route('/api/channels/{username}', name: 'liste_channels_desabonne', methods: ['GET'])]
     public function channels(Request $request, NotifUtilisateurRepository $notifUtilisateurRepository, string $username): JsonResponse
     {
       $data = array();
       return $this->json($data);
     }
 
-    #[Route('/notifications/{username}', name: 'liste_notifications', methods: ['GET'])]
+    #[Route('/api/notifications/{username}', name: 'liste_notifications', methods: ['GET'])]
     public function notifications(Request $request, NotifUtilisateurRepository $notifUtilisateurRepository, string $username): JsonResponse
     {
       //pour supporter ?offset=0&length=10
@@ -51,7 +51,7 @@ class NotificationController extends AbstractController
       return $this->json($data);
     }
     
-    #[Route('/notifications', name: 'suppr_notifications', methods: ['DELETE'])]
+    #[Route('/api/notifications', name: 'suppr_notifications', methods: ['DELETE'])]
     public function supprNotifications(Request $request, NotifUtilisateurRepository $notifUtilisateurRepository): JsonResponse
     {
       $parameters = $request->toArray();
@@ -65,7 +65,7 @@ class NotificationController extends AbstractController
       return $this->json($data);
     }
 
-    #[Route('/notifications/read', name: 'read_notif', format:'json', methods: ['POST'])]
+    #[Route('/api/notifications/read', name: 'read_notif', format:'json', methods: ['POST'])]
     public function read(Request $request, NotifUtilisateurRepository $notifUtilisateurRepository, LoggerInterface $logger): JsonResponse
     {
       $parameters = $request->toArray();
@@ -83,7 +83,7 @@ class NotificationController extends AbstractController
       return $this->json($data);
     }
 
-    #[Route('/notifications/unread', name: 'unread_notif', methods: ['POST'])]
+    #[Route('/api/notifications/unread', name: 'unread_notif', methods: ['POST'])]
     public function unread(Request $request, NotifUtilisateurRepository $notifUtilisateurRepository): JsonResponse
     {
       $parameters = $request->toArray();
@@ -98,7 +98,7 @@ class NotificationController extends AbstractController
       return $this->json($data);
     }
 
-    #[Route('/register', name: 'fcm_register', methods: ['POST'])]
+    #[Route('/api/register', name: 'fcm_register', methods: ['POST'])]
     public function register(Request $request, NotifEnregistrementRepository $notifEnregistrementRepository): JsonResponse
     {
       $parameters = $request->toArray();
@@ -109,7 +109,7 @@ class NotificationController extends AbstractController
       return $this->json($data);
     }
 
-    #[Route('/unregister', name: 'fcm_unregister', methods: ['POST'])]
+    #[Route('/api/unregister', name: 'fcm_unregister', methods: ['POST'])]
     public function unregister(Request $request, NotifEnregistrementRepository $notifEnregistrementRepository): JsonResponse
     {
       $parameters = $request->toArray();
