@@ -14,6 +14,9 @@ parameters:
     ldap_base_dn: '%env(string:LDAP_BASE_DN)%'
     ldap_dn: '%env(string:LDAP_DN)%'
     ldap_password: '%env(string:LDAP_PASSWORD)%'
+    hp_wsdl: '%env(HP_WSDL)%'
+    hp_user: '%env(HP_USER)%'
+    hp_password: '%env(HP_PASSWORD)%'
     app.admin_users: '%env(APP_PARAM)%'
 
 l3_cas_guard:

@@ -4,92 +4,103 @@ namespace App\Controller;
 
 use \SoapClient;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
+use L3\Bundle\LdapUserBundle\Entity\LdapUser;
+use OpenLdapObject\Builder\Condition;
+use Symfony\Component\Ldap\Ldap;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\{Response,Request};
+use Symfony\Component\HttpFoundation\{JsonResponse, Response,Request};
 
 class HyperPlanningController extends AbstractController
 {
-    #[Route('/edt', name: 'emploi_du_temps', methods: ['GET'])]
-    public function edt(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/edt/{username}', name: 'emploi_du_temps', methods: ['GET'])]
+    public function edt(Request $request, EntityManagerInterface $entityManager, UserProviderInterface $ldapUP, string $username): JsonResponse
     {
-      $login = 'bquiller';
-// $debut = $_GET['startDate'];
-// $fin = $_GET['endDate'];
+        // $user = $ldapUP->loadUserByIdentifier($username);
+        $ldap = Ldap::create('ext_ldap', ['connection_string' => 'ldap://'.$this->getParameter('ldap_hostname').':389']);
+        $query = $ldap->query('ou=people,dc=unimes,dc=fr', '(&(uid='.$username.'))');
+        $ldap->bind($this->getParameter('ldap_dn'), $this->getParameter('ldap_password'));
+        $results = $query->execute();
+        
+        foreach( $results as $index => $tab ) {
+            //print_r($tab);exit;
+            if ($tab->getAttribute('supannCodeINE') !== null) $ine = $tab->getAttribute('supannCodeINE')[0];
+            if ($tab->getAttribute('supannEmpId') !== null) $supannempid = $tab->getAttribute('supannEmpId')[0];
+            $sn = $tab->getAttribute('sn')[0];
+            $givenname = $tab->getAttribute('givenName')[0];
+        }
 
-      $attributes = $this->container->get('security.token_storage')->getToken()->getAttributes();
-      $ine = "test";
-      if (isset($attributes['supannCodeINE'])) 
-        $ine = $attributes['supannCodeINE'];
-      $sn = $attributes["sn"];
-      $gn = $attributes["givenName"];
-      $supannempid = 19673;
+        $debut = $request->get('startDate');
+        $fin = $request->get('endDate');
 
-      date_default_timezone_set('Europe/Paris');
+        date_default_timezone_set('Europe/Paris');
 
-      // URL du document WSDL de HYPERPLANNING Service web
-      $WSDL = "http://172.16.15.37/hpsw/wsdl/RpcEncoded";
-      // L'identifiant et le mot de passe
-      $LOGIN = "bquiller";
-      $PASS = "4YJBJ7Cj";
+        // http://127.0.0.1/mobile-ws/public/edt/bquiller?startDate=2024-01-01&endDate=2024-01-31
 
-      // Creation du client SOAP
-      $client = new SoapClient($WSDL, array('login'=> $LOGIN,'password'=> $PASS));
-      $events = array();
-      
-      try {
-        $etudiant = $client->AccederEtudiantParNumeroINE($ine);
-        $cours = $client->CoursEtudiantEntre2Dates($etudiant, $debut, $fin);
-      } catch (Exception $e) {
-        $enseignant = $client->AccederEnseignantParNomPrenomEtCode($sn, $gn, $supannempid);
-        $cours = $client->CoursEnseignantEntre2Dates($enseignant, $debut, $fin);
-      }
+        // URL du document WSDL de HYPERPLANNING Service web
+        $WSDL = $this->getParameter('hp_wsdl');
+        // L'identifiant et le mot de passe
+        $LOGIN = $this->getParameter('hp_user');
+        $PASS = $this->getParameter('hp_password');
 
-      if (empty($cours)) exit();
+        // Creation du client SOAP
+        $client = new SoapClient($WSDL, array('login'=> $LOGIN,'password'=> $PASS));
+        $events = array();
+        
+        try {
+            $etudiant = $client->AccederEtudiantParNumeroINE($ine);
+            $cours = $client->CoursEtudiantEntre2Dates($etudiant, $debut, $fin);
+        } catch (\Exception $e) {
+            $enseignant = $client->AccederEnseignantParNomPrenomEtCode($sn, $givenname, $supannempid);
+            $cours = $client->CoursEnseignantEntre2Dates($enseignant, $debut, $fin);
+        }
 
-      $cours = $client->RestreindreTableauDeCoursAuxCoursPlaces($cours);
-      foreach($cours as $uncours) {
-          $seances = $client->DetailDesSeancesPlaceesDuCours($uncours);
+        if (empty($cours)) exit();
 
-          foreach($seances as $uneseance) {
-              $dureeHM = $client->HpSvcWDureeEnHeureMinute($uneseance->Duree);
-              $dateFin = strtotime($uneseance->JourEtHeureDebut . ' +'. $dureeHM['AHeure'] .' hour +'.$dureeHM['AMinute'] .' minutes');
-              if (time() - strtotime($uneseance->JourEtHeureDebut) > 0 || $dateFin - time() < 0) continue;
+        $cours = $client->RestreindreTableauDeCoursAuxCoursPlaces($cours);
+        foreach($cours as $uncours) {
+            $seances = $client->DetailDesSeancesPlaceesDuCours($uncours);
 
-              $event = array(
-                  "id"=> $uneseance->Matiere,
-                  "startDateTime"=>date('Y-m-d\TH:i:sP', strtotime($uneseance->JourEtHeureDebut)),
-                  "endDateTime"=> date('Y-m-d\TH:i:sP', $dateFin),
-                  "course"=> array("id"=> $uncours,"label"=>$client->LibelleMatiere($uneseance->Matiere),"type"=>$uneseance->TypeCours,
-                      "color"=>"#ffffff", "type"=>"","online"=>false,"url"=>null),
-                  "rooms"=> array(),
-                  "teachers"=> array(),
-                  "groups"=> array(),
-              );
+            foreach($seances as $uneseance) {
+                $dureeHM = $client->HpSvcWDureeEnHeureMinute($uneseance->Duree);
+                $dateFin = strtotime($uneseance->JourEtHeureDebut . ' +'. $dureeHM['AHeure'] .' hour +'.$dureeHM['AMinute'] .' minutes');
+                if (time() - strtotime($uneseance->JourEtHeureDebut) > 0 || $dateFin - time() < 0) continue;
 
-              foreach ($uneseance->TableauSalle as $salle) {
-                  $rooms = array("id"=>$salle, "label"=>$client->LibelleLongSalle($salle),
-                      "type"=>"Salle", "building"=>"TEST");
-                  array_push($event["rooms"], $rooms);
-              }
+                $event = array(
+                    "id"=> $uneseance->Matiere,
+                    "startDateTime"=>date('Y-m-d\TH:i:sP', strtotime($uneseance->JourEtHeureDebut)),
+                    "endDateTime"=> date('Y-m-d\TH:i:sP', $dateFin),
+                    "course"=> array("id"=> $uncours,"label"=>$client->LibelleMatiere($uneseance->Matiere),"type"=>$uneseance->TypeCours,
+                        "color"=>"#ffffff", "type"=>"","online"=>false,"url"=>null),
+                    "rooms"=> array(),
+                    "teachers"=> array(),
+                    "groups"=> array(),
+                );
 
-              foreach ($uneseance->TableauEnseignant as $enseignant) {
-                  $teachers = array("id"=>$enseignant, "displayname"=>$client->CiviliteEnseignant($enseignant).' '.$client->NomEnseignant($enseignant),
-                      "email"=>$client->EMailEnseignant($enseignant));
-                  array_push($event["teachers"], $teachers);
-              }
+                foreach ($uneseance->TableauSalle as $salle) {
+                    $rooms = array("id"=>$salle, "label"=>$client->LibelleLongSalle($salle),
+                        "type"=>"Salle", "building"=>"TEST");
+                    array_push($event["rooms"], $rooms);
+                }
 
-              array_push($events, $event);
-          }
-      }
+                foreach ($uneseance->TableauEnseignant as $enseignant) {
+                    $teachers = array("id"=>$enseignant, "displayname"=>$client->CiviliteEnseignant($enseignant).' '.$client->NomEnseignant($enseignant),
+                        "email"=>$client->EMailEnseignant($enseignant));
+                    array_push($event["teachers"], $teachers);
+                }
 
-      $messages = array("level"=>"INFO","text"=>"Cet emploi du temps dépend de vos inscriptions pédagogiques : vérifiez les !");
+                array_push($events, $event);
+            }
+        }
 
-      $plannings = array("id"=>"001","label"=>"test","default"=>true,"type"=>"USER","messages"=>array($messages),"events"=>$events);
+        $messages = array("level"=>"INFO","text"=>"Cet emploi du temps dépend de vos inscriptions pédagogiques : vérifiez les !");
 
-      $reponse = array("messages"=>$messages,"plannings"=>array($plannings));
+        $plannings = array("id"=>"001","label"=>"test","default"=>true,"type"=>"USER","messages"=>array($messages),"events"=>$events);
 
-      echo json_encode($reponse);
+        $reponse = array("messages"=>$messages,"plannings"=>array($plannings));
+
+        return $this->json($reponse);
 
     }
 
