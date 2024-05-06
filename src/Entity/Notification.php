@@ -33,8 +33,11 @@ class Notification
     #[ORM\Column(length: 100)]
     private ?string $author = null;
 
-    #[ORM\OneToMany(targetEntity: "NotifUtilisateur", fetch: "LAZY", mappedBy: "notification", cascade:['persist'])]
+    #[ORM\OneToMany(targetEntity: "NotifUtilisateur", fetch: "LAZY", mappedBy: "notification", cascade:['persist'], orphanRemoval:true)]
 	private $utilisateurs;
+
+    #[ORM\OneToMany(targetEntity: "NotifGroupe", fetch: "LAZY", mappedBy: "notification", cascade:['persist'], orphanRemoval:true)]
+	private $groupes;
 
     public function getId(): ?int
     {
@@ -117,6 +120,25 @@ class Notification
     public function removeUtilisateur(NotifUtilisateur $utilisateur)
     {
         $this->utilisateurs->removeElement($utilisateur);
+        return $this;
+    }
+
+    public function getGroupes()
+    {
+        return $this->groupes;
+    }
+
+    public function addGroupe(NotifGroupe $groupe)
+    {
+        $groupe->setNotification($this);
+        $groupe->setState("UNREAD");
+        $this->groupes->add($groupe);
+        return $this;
+    }
+    
+    public function removeGroupe(NotifGroupe $groupe)
+    {
+        $this->groupes->removeElement($groupe);
         return $this;
     }
 

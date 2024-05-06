@@ -34,7 +34,7 @@ class NotificationController extends AbstractController
       $offset = $request->get('offset');
       $length = $request->get('length');
 
-      $notifications = $notifUtilisateurRepository->findByUsername($username, $offset, $length);
+      $notifications = $notifUtilisateurRepository->findSomeByUsername($username, $offset, $length);
       $data = array();
       foreach ($notifications as $key => $notif) {
         $data[]=array(

@@ -2,26 +2,26 @@
 
 namespace App\Repository;
 
-use App\Entity\NotifUtilisateur;
+use App\Entity\NotifGroupe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<NotifUtilisateur>
+ * @extends ServiceEntityRepository<NotifGroupe>
  *
- * @method NotifUtilisateur|null find($id, $lockMode = null, $lockVersion = null)
- * @method NotifUtilisateur|null findOneBy(array $criteria, array $orderBy = null)
- * @method NotifUtilisateur[]    findAll()
- * @method NotifUtilisateur[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method NotifGroupe|null find($id, $lockMode = null, $lockVersion = null)
+ * @method NotifGroupe|null findOneBy(array $criteria, array $orderBy = null)
+ * @method NotifGroupe[]    findAll()
+ * @method NotifGroupe[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class NotifUtilisateurRepository extends ServiceEntityRepository
+class NotifGroupeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, NotifUtilisateur::class);
+        parent::__construct($registry, NotifGroupe::class);
     }
 
-    public function save(NotifUtilisateur $entity, bool $flush = false): void
+    public function save(NotifGroupe $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -30,7 +30,7 @@ class NotifUtilisateurRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(NotifUtilisateur $entity, bool $flush = false): void
+    public function remove(NotifGroupe $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -38,23 +38,11 @@ class NotifUtilisateurRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-
-    public function findByUsername($username): ?array
+    public function findByGroupname($groupname, $offset, $limit): ?array
     {
         return $this->createQueryBuilder('nu')
-            ->andWhere('nu.username = :val1')
-            ->setParameter('val1', $username)
-            ->orderBy('nu.id', 'DESC')
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
-    public function findSomeByUsername($username, $offset, $limit): ?array
-    {
-        return $this->createQueryBuilder('nu')
-            ->andWhere('nu.username = :val1')
-            ->setParameter('val1', $username)
+            ->andWhere('nu.groupname = :val1')
+            ->setParameter('val1', $groupname)
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->orderBy('nu.id', 'DESC')
@@ -64,12 +52,12 @@ class NotifUtilisateurRepository extends ServiceEntityRepository
     }
 
 
-    public function findByUsernameAndNotification($username, $notificationId): ?NotifUtilisateur
+    public function findByGroupnameAndNotification($groupname, $notificationId): ?NotifGroupe
     {
         return $this->createQueryBuilder('nu')
-            ->andWhere('nu.username = :val1')
+            ->andWhere('nu.groupname = :val1')
             ->andWhere('nu.notification = :val2')
-            ->setParameter('val1', $username)
+            ->setParameter('val1', $groupname)
             ->setParameter('val2', $notificationId)
 //            ->orderBy('c.id', 'ASC')
             ->getQuery()
@@ -78,7 +66,7 @@ class NotifUtilisateurRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return NotifUtilisateur[] Returns an array of NotifUtilisateur objects
+//     * @return NotifGroupe[] Returns an array of NotifGroupe objects
 //     */
 //    public function findByExampleField($value): array
 //    {
