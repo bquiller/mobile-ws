@@ -119,7 +119,14 @@ class NotificationCrudController extends AbstractCrudController
                     ->withNotification(FcmNotification::create(
                         $notification->getTitle(), 
                         $notification->getMessage()));
-                $cloudMessaging->send($message);
+                try {
+                    $cloudMessaging->send($message);
+                } catch(\Kreait\Firebase\Exception\Messaging\NotFound $e) {
+                    // suppression du device en cas d'erreur
+                    $notifEnregistrementRepository->remove($device);
+                    echo "Token ".$device->getToken()." non trouvé dans Firebase ; il a été supprimé.";
+                    continue;
+                }
             }
         }
         return $this->redirectToRoute('admin');
