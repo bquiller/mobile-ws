@@ -42,7 +42,7 @@ class CarteController extends AbstractController
 
             if ($tab->getAttribute('supannCodeINE') !== null) {
                 $title="Carte étudiant";
-                $identifiant = $tab->getAttribute('supannCodeINE')[0];
+                $identifiant = $tab->getAttribute('supannEtuId')[0];
                 $model = $this->getParameter('card_student_model');
             } else if ($tab->getAttribute('supannEmpId') !== null) {
                 $title="Carte professionnelle";
@@ -52,13 +52,13 @@ class CarteController extends AbstractController
             $cards = array($model=> array(
                 "title"=>$title,
                 "subtitle"=>null,
-                  "endDate"=>$fin,
-                  "idNumber"=>$csn,
-                  "csn"=>$csn,
-                  "qrCode"=>array(
-                      "type"=>"text",
-                      "value"=>$username.'@unimes.fr')
-                  ) 
+                "endDate"=>$fin,
+                "idNumber"=>$identifiant,
+                "csn"=>$csn,
+                "qrCode"=>array(
+                    "type"=>"text",
+                    "value"=>$username.'@unimes.fr')
+                ) 
             );
         }
 
