@@ -18,6 +18,8 @@ parameters:
     hp_user: '%env(HP_USER)%'
     hp_password: '%env(HP_PASSWORD)%'
     bearer_token: '%env(BEARER_TOKEN)%'
+    card_staff_model: '%env(CARD_STAFF_MODEL)%'
+    card_student_model: '%env(CARD_STUDENT_MODEL)%'
 
 l3_cas_guard:
     host: '%env(string:CAS_HOST)%'

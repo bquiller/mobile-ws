@@ -36,15 +36,30 @@ class CarteController extends AbstractController
             $affiliation = $tab->getAttribute('eduPersonPrimaryAffiliation')[0];
             $photo = 'data:image/jpeg;base64,'.base64_encode($tab->getAttribute('jpegPhoto')[0]);
             $csn = $tab->getAttribute('unimesCarte')[0];
-            if ($tab->getAttribute('supannCodeINE') !== null) {
-                $title="Carte professionnelle";
-                $identifiant = $tab->getAttribute('supannCodeINE')[0];
-            } else if ($tab->getAttribute('supannEmpId') !== null) {
-                $title="Carte étudiant";
-                $identifiant = $tab->getAttribute('supannEmpId')[0];
-            }
+            $cards = array();
             if (date("m") > 8) $fin = date("Y")+1;
             else $fin = date("Y");
+
+            if ($tab->getAttribute('supannCodeINE') !== null) {
+                $title="Carte étudiant";
+                $identifiant = $tab->getAttribute('supannCodeINE')[0];
+                $model = $this->getParameter('card_student_model');
+            } else if ($tab->getAttribute('supannEmpId') !== null) {
+                $title="Carte professionnelle";
+                $identifiant = $tab->getAttribute('supannEmpId')[0];
+                $model = $this->getParameter('card_staff_model');
+            }
+            $cards = array($model=> array(
+                "title"=>$title,
+                "subtitle"=>null,
+                  "endDate"=>$fin,
+                  "idNumber"=>$csn,
+                  "csn"=>$csn,
+                  "qrCode"=>array(
+                      "type"=>"text",
+                      "value"=>$username.'@unimes.fr')
+                  ) 
+            );
         }
 
         $data = array(
@@ -56,18 +71,7 @@ class CarteController extends AbstractController
           "photo"=> $photo,
           "ine"=> $identifiant,
           "errors"=>array(), 
-          "cards"=>array(
-              "euStudentCard"=> array(
-                "title"=>$title,
-                "subtitle"=>null,
-                "endDate"=>$fin,
-                "idNumber"=>$csn,
-                "csn"=>$csn,
-                "qrCode"=>array(
-                    "type"=>"text",
-                    "value"=>$username.'@unimes.fr')
-                ), 
-            ) 
+          "cards"=>$cards
         );
 
         return $this->json($data);
