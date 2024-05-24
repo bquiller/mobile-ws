@@ -20,6 +20,8 @@ parameters:
     bearer_token: '%env(BEARER_TOKEN)%'
     card_staff_model: '%env(CARD_STAFF_MODEL)%'
     card_student_model: '%env(CARD_STUDENT_MODEL)%'
+    admin_users: '%env(json:ADMIN_USERS)%'
+    schedule_groups: '%env(json:SCHEDULE_GROUPS)%'
 
 l3_cas_guard:
     host: '%env(string:CAS_HOST)%'

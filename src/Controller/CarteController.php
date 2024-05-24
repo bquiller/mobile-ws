@@ -70,7 +70,6 @@ class CarteController extends AbstractController
           "affiliation"=> $affiliation,
           "photo"=> $photo,
           "ine"=> $identifiant,
-          "errors"=>array(), 
           "cards"=>$cards
         );
 

@@ -28,8 +28,13 @@ class ProfilController extends AbstractController
             $prenom = $tab->getAttribute('givenName')[0];
             $nomPrenom = $tab->getAttribute('displayName')[0];
             $mail = $tab->getAttribute('mail')[0];
-            $affiliation = $tab->getAttribute('eduPersonPrimaryAffiliation')[0];
+            $affiliation = $tab->getAttribute('supannAffectation')[0];
         }
+
+        if (in_array($username, $this->getParameter('admin_users'))) 
+            $affiliation = 'multi-admin';
+        if (in_array($affiliation, $this->getParameter('schedule_groups')))
+            $affiliation = 'schedule-manager';
 
         $data = array(
           "displayName"=> $nomPrenom,
@@ -44,3 +49,4 @@ class ProfilController extends AbstractController
     }
 
 }
+
