@@ -22,7 +22,8 @@ class HyperPlanningController extends AbstractController
         $query = $ldap->query('ou=people,'.$this->getParameter('ldap_base_dn'), '(&(uid='.$username.'))');
         $ldap->bind($this->getParameter('ldap_dn'), $this->getParameter('ldap_password'));
         $results = $query->execute();
-        
+	// date_default_timezone_set('Europe/Paris');
+
         foreach( $results as $index => $tab ) {
             //print_r($tab);exit;
             if ($tab->getAttribute('supannCodeINE') !== null) $ine = $tab->getAttribute('supannCodeINE')[0];
@@ -33,8 +34,6 @@ class HyperPlanningController extends AbstractController
 
         $debut = $request->get('startDate');
         $fin = $request->get('endDate');
-
-        date_default_timezone_set('Europe/Paris');
 
         $WSDL = $this->getParameter('hp_wsdl');
         $LOGIN = $this->getParameter('hp_user');
@@ -65,8 +64,8 @@ class HyperPlanningController extends AbstractController
 
                 $event = array(
                     "id"=> $uneseance->Matiere,
-                    "startDateTime"=>date('Y-m-d\TH:i:sP', strtotime($uneseance->JourEtHeureDebut)),
-                    "endDateTime"=> date('Y-m-d\TH:i:sP', $dateFin),
+                    "startDateTime"=>date('Y-m-d\TH:i:s', strtotime($uneseance->JourEtHeureDebut)),
+                    "endDateTime"=> date('Y-m-d\TH:i:s', $dateFin),
                     "course"=> array("id"=> $uncours,"label"=>$client->LibelleMatiere($uneseance->Matiere),"type"=>$uneseance->TypeCours,
                         "color"=>"#ffffff", "type"=>"","online"=>false,"url"=>null),
                     "rooms"=> array(),
@@ -92,7 +91,7 @@ class HyperPlanningController extends AbstractController
 
         $messages = array("level"=>"INFO","text"=>"Cet emploi du temps dépend de vos inscriptions pédagogiques : vérifiez les !");
 
-        $plannings = array("id"=>"001","label"=>"test","default"=>true,"type"=>"USER","messages"=>array($messages),"events"=>$events);
+        $plannings = array("id"=>"001","label"=>"Planning","default"=>true,"type"=>"USER","messages"=>array($messages),"events"=>$events);
 
         $reponse = array("messages"=>$messages,"plannings"=>array($plannings));
 
@@ -101,3 +100,4 @@ class HyperPlanningController extends AbstractController
     }
 
 }
+
