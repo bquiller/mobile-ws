@@ -34,8 +34,12 @@ class CarteController extends AbstractController
             $naissance = $tab->getAttribute('dateNaissance')[0];
             $genre = $tab->getAttribute('supannCivilite')[0];
             $affiliation = $tab->getAttribute('eduPersonPrimaryAffiliation')[0];
-            $photo = 'data:image/jpeg;base64,'.base64_encode($tab->getAttribute('jpegPhoto')[0]);
-            $csn = $tab->getAttribute('unimesCarte')[0];
+	    if ($tab->getAttribute('jpegPhoto') !== null)
+	        $photo = 'data:image/jpeg;base64,'.base64_encode($tab->getAttribute('jpegPhoto')[0]);
+	    else $photo='';
+	    if ($tab->getAttribute('unimesCarte') !== null)
+                $csn = $tab->getAttribute('unimesCarte')[0];
+	    else $csn='';
             $cards = array();
             if (date("m") > 8) $fin = date("Y")+1;
             else $fin = date("Y");

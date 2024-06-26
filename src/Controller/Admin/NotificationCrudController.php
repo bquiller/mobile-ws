@@ -7,7 +7,7 @@ use App\Repository\{NotificationRepository,NotifUtilisateurRepository,NotifGroup
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Config\{Action,Actions,Crud};
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\{TextField,TextareaField,AssociationField,UrlField,CollectionField};
+use EasyCorp\Bundle\EasyAdminBundle\Field\{TextField,TextareaField,AssociationField,UrlField,CollectionField,ChoiceField};
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Contract\Messaging;
 use Kreait\Firebase\Messaging\CloudMessage;
@@ -20,6 +20,15 @@ class NotificationCrudController extends AbstractCrudController
 {
     private NotificationRepository $notificationRepository;
 
+
+    public function createEntity(string $entityFqcn)
+    {
+        $notification = new Notification();
+        $notification->setAuthor($this->getUser()->getDisplayName());
+
+        return $notification;
+    }
+
     public static function getEntityFqcn(): string
     {
         return Notification::class;
@@ -29,10 +38,20 @@ class NotificationCrudController extends AbstractCrudController
     {
         $new = [
             TextField::new('title','Titre')->setRequired(true),
-            TextField::new('channel','Canal')->setRequired(true),
+	    // TextField::new('channel','Canal')->setRequired(true),
+	    ChoiceField::new('channel','Canal')->setRequired(true)
+            ->setChoices([
+                'Test' => 'TEST',
+                'Culture' => 'CULTURE',
+                'Formation' => 'FORMATION',
+                'Vie étudiante' => 'Vie étudiante',
+                'Evènement' => 'Evènement',
+                'Bibliothèque' => 'Bibliothèque',
+                'Recherche' => 'Recherche',
+            ]),
             TextareaField::new('message','Message')->setRequired(true),
             UrlField::new('lien', 'Lien')->setRequired(false),
-            TextField::new('author', 'Auteur')->setRequired(false),
+            TextField::new('author', 'Auteur')->setRequired(true),
         ];
 
         $edit = [

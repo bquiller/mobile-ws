@@ -58,6 +58,9 @@ class HyperPlanningController extends AbstractController
             $seances = $client->DetailDesSeancesPlaceesDuCours($uncours);
 
             foreach($seances as $uneseance) {
+                $memo = $client->MemoCours($uncours);
+                $libelle = $client->LibelleMatiere($uneseance->Matiere).' '.$memo;
+
                 $dureeHM = $client->HpSvcWDureeEnHeureMinute($uneseance->Duree);
                 $dateFin = strtotime($uneseance->JourEtHeureDebut . ' +'. $dureeHM['AHeure'] .' hour +'.$dureeHM['AMinute'] .' minutes');
                 if (time() - strtotime($uneseance->JourEtHeureDebut) > 0 || $dateFin - time() < 0) continue;
@@ -66,13 +69,14 @@ class HyperPlanningController extends AbstractController
                     "id"=> $uneseance->Matiere,
                     "startDateTime"=>date('Y-m-d\TH:i:s', strtotime($uneseance->JourEtHeureDebut)),
                     "endDateTime"=> date('Y-m-d\TH:i:s', $dateFin),
-                    "course"=> array("id"=> $uncours,"label"=>$client->LibelleMatiere($uneseance->Matiere),"type"=>$uneseance->TypeCours,
+                    "course"=> array("id"=> $uncours,"label"=>$libelle,"type"=>$uneseance->TypeCours,
                         "color"=>"#ffffff", "type"=>"","online"=>false,"url"=>null),
                     "rooms"=> array(),
                     "teachers"=> array(),
                     "groups"=> array(),
                 );
 
+                // var_dump($uneseance);
                 foreach ($uneseance->TableauSalle as $salle) {
                     $rooms = array("id"=>$salle, "label"=>$client->LibelleLongSalle($salle),
                         "type"=>"Salle", "building"=>"TEST");
@@ -100,4 +104,5 @@ class HyperPlanningController extends AbstractController
     }
 
 }
+
 
