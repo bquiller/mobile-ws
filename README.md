@@ -1,5 +1,5 @@
 # Présentation
-Mobile-ws est une application Symfony 7 qui offre des webservices à esup-multi et qui l'envoi de notifications dans une interface easy-admin.
+Mobile-ws est une application Symfony 7 qui offre des webservices à esup-multi et qui permet l'envoi de notifications
  
 ## Pré-requis 
 Symfony 7 requiert PHP 8.2 ou plus et composer.
