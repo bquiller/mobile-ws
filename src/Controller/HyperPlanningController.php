@@ -33,6 +33,7 @@ class HyperPlanningController extends AbstractController
         }
 
         $debut = $request->get('startDate');
+	if ($debut === '2024-08-25') $debut = '2024-08-26';
         $fin = $request->get('endDate');
 
         $WSDL = $this->getParameter('hp_wsdl');
@@ -63,10 +64,10 @@ class HyperPlanningController extends AbstractController
 
                 $dureeHM = $client->HpSvcWDureeEnHeureMinute($uneseance->Duree);
                 $dateFin = strtotime($uneseance->JourEtHeureDebut . ' +'. $dureeHM['AHeure'] .' hour +'.$dureeHM['AMinute'] .' minutes');
-                if (time() - strtotime($uneseance->JourEtHeureDebut) > 0 || $dateFin - time() < 0) continue;
+                // if (time() - strtotime($uneseance->JourEtHeureDebut) > 0 || $dateFin - time() < 0) continue;
 
                 $event = array(
-                    "id"=> $uneseance->Matiere,
+                    "id"=> $uneseance->Matiere . $uneseance->JourEtHeureDebut,
                     "startDateTime"=>date('Y-m-d\TH:i:s', strtotime($uneseance->JourEtHeureDebut)),
                     "endDateTime"=> date('Y-m-d\TH:i:s', $dateFin),
                     "course"=> array("id"=> $uncours,"label"=>$libelle,"type"=>$uneseance->TypeCours,
@@ -79,7 +80,7 @@ class HyperPlanningController extends AbstractController
                 // var_dump($uneseance);
                 foreach ($uneseance->TableauSalle as $salle) {
                     $rooms = array("id"=>$salle, "label"=>$client->LibelleLongSalle($salle),
-                        "type"=>"Salle", "building"=>"TEST");
+                        "type"=>"Salle", "building"=>"");
                     array_push($event["rooms"], $rooms);
                 }
 

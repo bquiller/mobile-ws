@@ -71,6 +71,7 @@ class NotifUtilisateurRepository extends ServiceEntityRepository
             ->andWhere('nu.notification = :val2')
             ->setParameter('val1', $username)
             ->setParameter('val2', $notificationId)
+            ->setMaxResults(1)
 //            ->orderBy('c.id', 'ASC')
             ->getQuery()
             ->getOneOrNullResult()

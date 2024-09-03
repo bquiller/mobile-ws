@@ -41,8 +41,12 @@ class CarteController extends AbstractController
                 $csn = $tab->getAttribute('unimesCarte')[0];
 	    else $csn='';
             $cards = array();
+
+	    $fin = $tab->getAttribute('supannEtuAnneeInscription')[0];
+	    /*
             if (date("m") > 8) $fin = date("Y")+1;
-            else $fin = date("Y");
+	    else $fin = date("Y");
+	     */
 
             if ($tab->getAttribute('supannCodeINE') !== null) {
                 $title="Carte étudiant";
