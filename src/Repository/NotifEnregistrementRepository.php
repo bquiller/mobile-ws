@@ -44,6 +44,7 @@ class NotifEnregistrementRepository extends ServiceEntityRepository
             ->andWhere('nu.username = :val1')
             ->setParameter('val1', $username)
             ->orderBy('nu.id', 'DESC')
+	    ->distinct()
             ->getQuery()
             ->getResult()
         ;

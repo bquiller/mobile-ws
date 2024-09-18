@@ -7,7 +7,7 @@ use App\Repository\{NotificationRepository,NotifUtilisateurRepository,NotifGroup
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Config\{Action,Actions,Crud};
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\{TextField,TextareaField,AssociationField,UrlField,CollectionField,ChoiceField};
+use EasyCorp\Bundle\EasyAdminBundle\Field\{TextField,TextareaField,AssociationField,UrlField,CollectionField,ChoiceField,DateField};
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Contract\Messaging;
 use Kreait\Firebase\Messaging\CloudMessage;
@@ -52,6 +52,7 @@ class NotificationCrudController extends AbstractCrudController
             TextareaField::new('message','Message')->setRequired(true),
             UrlField::new('lien', 'Lien')->setRequired(false),
             TextField::new('author', 'Auteur')->setRequired(true),
+            DateField::new('dateCreation', 'Date de création')->setRequired(true),
         ];
 
         $edit = [
@@ -98,21 +99,39 @@ class NotificationCrudController extends AbstractCrudController
         foreach ($groupes as $key => $groupe) {
             // récupérer les utilisateurs d'un groupe 
             $utilisateurs = $notifGroupesUtilisateursRepository->findByLlGroupe($groupe->getGroupName());
-            
             // pour chaque utilisateur
             foreach ($utilisateurs as $key => $utilisateur) {
-                $devices = $notifEnregistrementRepository->findByUsername($utilisateur->getCptLogin());
-                // et pour chaque device de l'utilisateur
-                foreach ($devices as $key => $device) {
-                    // créer la notifUtilisateur correspondante
+                  try {
                     $user = new NotifUtilisateur();
                     $user->setUsername($utilisateur->getCptLogin());
                     $user->setState("UNREAD");
                     $notification->addUtilisateur($user);
-                    $notificationRepository->save($notification,true);
-                }
-            }
+		    // $notificationRepository->save($notification,true);
+		    // $notifUtilisateurRepository->save($user,true);
+                  } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e){
+                    // si le couple username / token est déjà connu, on renvoie OK
+                    $notification->removeUtilisateur($user);
+                  }
+/*
+                $devices = $notifEnregistrementRepository->findByUsername($utilisateur->getCptLogin());
+                // et pour chaque device de l'utilisateur
+                foreach ($devices as $key => $device) {
+                    // créer la notifUtilisateur correspondante
+		  try {
+                    $user = new NotifUtilisateur();
+                    $user->setUsername($utilisateur->getCptLogin());
+                    $user->setState("UNREAD");
+                    $notification->addUtilisateur($user);
+		    $notificationRepository->save($notification,true);
+      		  } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e){
+		    // si le couple username / token est déjà connu, on renvoie OK
+                    $notification->removeUtilisateur($user);
+		  }
+		}
+ */
+	    }
         }
+        $notificationRepository->save($notification,true);
         
         // On reste sur la page (bizarre qu'il n'y ait as plus simple pour le faire ...)
         $url = $this->container->get(AdminUrlGenerator::class)->setAction(Action::EDIT)

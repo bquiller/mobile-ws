@@ -102,8 +102,12 @@ class NotificationController extends AbstractController
     public function register(Request $request, NotifEnregistrementRepository $notifEnregistrementRepository): JsonResponse
     {
       $parameters = $request->toArray();
-      $enregistrement = new NotifEnregistrement($parameters['username'], $parameters['token'], $parameters['platform'], $parameters['ip']);
-      $notifEnregistrementRepository->save($enregistrement,true);
+      try{
+        $enregistrement = new NotifEnregistrement($parameters['username'], $parameters['token'], $parameters['platform'], $parameters['ip']);
+        $notifEnregistrementRepository->save($enregistrement,true);
+      } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e){
+        // si le couple username / token est déjà connu, on renvoie OK
+      }
       
       $data = array('OK');
       return $this->json($data);
